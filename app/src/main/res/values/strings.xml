@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Fuel App</string>
+    <string name="consumo_1">Consumo 1:</string>
+    <string name="consumo_2">Consumo 2:</string>
+    <string name="valor_de_consumo_1">km/l 1</string>
+    <string name="valor_de_consumo_2">km/l 2</string>
+    <string name="resultado">Resultado:</string>
+    <string name="litro">Litro</string>
+</resources>
