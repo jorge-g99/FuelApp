@@ -92,28 +92,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleTextInput() {
         try {
-            val tiFuel1 = tiFuel1.hint
-            val fuel1 = etFuel1.text?.toString()?.toDouble()
-            val tiFuel2 = tiFuel2.hint
-            val fuel2 = etFuel2.text?.toString()?.toDouble()
-            val value1 = etValue1.text?.toString()?.toDouble()
-            val value2 = etValue2.text?.toString()?.toDouble()
+            val label1 = tiFuel1.hint?.toString().orEmpty()
+            val label2 = tiFuel2.hint?.toString().orEmpty()
+            val fuel1 = etFuel1.text?.toString()?.toDoubleOrNull()
+            val fuel2 = etFuel2.text?.toString()?.toDoubleOrNull()
+            val value1 = etValue1.text?.toString()?.toDoubleOrNull()
+            val value2 = etValue2.text?.toString()?.toDoubleOrNull()
 
-            if ((fuel1 != null && fuel1 > 0)
-                && (fuel2 != null && fuel2 > 0)
-                && (value1 != null && value1 > 0)
-                && (value2 != null && value2 > 0)) {
-                val spent1 = BigDecimal(value1 / fuel1).setScale(2, RoundingMode.HALF_UP)
-                val spent2 = BigDecimal(value2 / fuel2).setScale(2, RoundingMode.HALF_UP)
-                val betterSpent = if (spent1 < spent2) spent1 else spent2
+            if (fuel1 != null && fuel1 > 0 &&
+                fuel2 != null && fuel2 > 0 &&
+                value1 != null && value1 > 0 &&
+                value2 != null && value2 > 0) {
 
-                val result = """
-                    Gasto por $tiFuel1: R$$value1 / $fuel1 Km = $spent1
-                    
-                    Gasto por $tiFuel2: R$$value2 / $fuel2 Km = $spent2
-                    
-                    Melhor resultado: R$$betterSpent/Km
-                """.trimIndent()
+                val result = FuelCalculator.calculate(label1, value1, fuel1, label2, value2, fuel2)
                 tvResult.text = result
             } else {
                 tvResult.text = "Preencha todos os campos acima!"
