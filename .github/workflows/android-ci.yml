@@ -11,9 +11,6 @@ jobs:
     name: 🛠️ Setup do Projeto
     runs-on: ubuntu-latest
 
-    outputs:
-      gradle-cache-key: ${{ steps.cache-key.outputs.key }}
-
     steps:
       - name: ⬇️ Checkout do código
         uses: actions/checkout@v4
@@ -25,7 +22,6 @@ jobs:
           java-version: '17'
 
       - name: 📦 Cache do Gradle
-        id: cache-key
         uses: actions/cache@v3
         with:
           path: |
@@ -58,7 +54,7 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ needs.setup.outputs.gradle-cache-key }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-gradle
 
       - name: 🔧 Permissão para gradlew
@@ -91,7 +87,7 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ needs.setup.outputs.gradle-cache-key }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-gradle
 
       - name: 🔧 Permissão para gradlew
