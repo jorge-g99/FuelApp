@@ -57,6 +57,9 @@ jobs:
           key: ${{ needs.setup.outputs.gradle-cache-key }}
           restore-keys: ${{ runner.os }}-gradle
 
+      - name: 🛠️ Permissão ao Gradle
+        run: chmod +x ./gradlew
+
       - name: 🔧 Build do projeto
         run: ./gradlew assembleDebug
 
@@ -84,6 +87,9 @@ jobs:
             ~/.gradle/wrapper
           key: ${{ needs.setup.outputs.gradle-cache-key }}
           restore-keys: ${{ runner.os }}-gradle
+
+      - name: 🛠️ Permissão ao Gradle
+        run: chmod +x ./gradlew
 
       - name: 🧪 Executar Testes Unitários
         run: ./gradlew testDebugUnitTest
