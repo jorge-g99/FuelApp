@@ -2,45 +2,18 @@ name: Android CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   setup:
     name: ⚙️ Setup Ambiente
     runs-on: ubuntu-latest
-    outputs:
-      gradle-cache-key: ${{ steps.cache.outputs.cache-primary-key }}
+
     steps:
       - name: ⬇️ Checkout do código
         uses: actions/checkout@v4
-
-      - name: ☕️ Setup Java 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: 📦 Cache do Gradle
-        id: cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: ${{ runner.os }}-gradle
-
-      - name: 🛠️ Permissão ao Gradle
-        run: chmod +x ./gradlew
-
-  build:
-    name: 🔧 Build e Lint
-    runs-on: ubuntu-latest
-    needs: setup
-    steps:
-      - uses: actions/checkout@v4
 
       - name: ☕ Setup Java 17
         uses: actions/setup-java@v3
@@ -54,24 +27,53 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ needs.setup.outputs.gradle-cache-key }}
-          restore-keys: ${{ runner.os }}-gradle
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: gradle-${{ runner.os }}
 
-      - name: 🛠️ Permissão ao Gradle
+      - name: 🛠️ Permissão para o Gradle Wrapper
         run: chmod +x ./gradlew
 
-      - name: 🔧 Build do projeto
+  build_lint:
+    name: 🔧 Build e Lint
+    runs-on: ubuntu-latest
+    needs: setup
+
+    steps:
+      - name: ⬇️ Checkout do código
+        uses: actions/checkout@v4
+
+      - name: ☕ Setup Java 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 📦 Cache do Gradle
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: gradle-${{ runner.os }}
+
+      - name: 🛠️ Permissão para o Gradle Wrapper
+        run: chmod +x ./gradlew
+
+      - name: 🏗️ Build Debug
         run: ./gradlew assembleDebug
 
       - name: 🔍 Rodar Android Lint
         run: ./gradlew lintDebug
 
-  test:
+  test_apk:
     name: 🧪 Testes e APK
     runs-on: ubuntu-latest
-    needs: setup
+    needs: build_lint
+
     steps:
-      - uses: actions/checkout@v4
+      - name: ⬇️ Checkout do código
+        uses: actions/checkout@v4
 
       - name: ☕ Setup Java 17
         uses: actions/setup-java@v3
@@ -85,19 +87,19 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ needs.setup.outputs.gradle-cache-key }}
-          restore-keys: ${{ runner.os }}-gradle
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: gradle-${{ runner.os }}
 
-      - name: 🛠️ Permissão ao Gradle
+      - name: 🛠️ Permissão para o Gradle Wrapper
         run: chmod +x ./gradlew
 
-      - name: 🧪 Executar Testes Unitários
+      - name: 🧪 Testes Unitários
         run: ./gradlew testDebugUnitTest
 
-      - name: 🧱 Build do APK (release e debug)
+      - name: 📦 Build Release e Debug APK
         run: ./gradlew assembleDebug assembleRelease
 
-      - name: 📤 Upload do APK como artefato
+      - name: 📤 Upload do APK
         uses: actions/upload-artifact@v4
         with:
           name: apk-builds
