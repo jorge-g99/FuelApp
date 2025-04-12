@@ -36,6 +36,9 @@ jobs:
       - name: 🔧 Build do projeto
         run: ./gradlew assembleDebug
 
+      - name: 🔍 Rodar Android Lint
+        run: ./gradlew lintDebug
+
       - name: 🧪 Executar Testes Unitários
         run: ./gradlew testDebugUnitTest
 
